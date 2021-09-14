@@ -17,7 +17,7 @@ Any hud needs to define the following functions:
 
 ]]
 
-local PPA = thirsty.persistent_player_attributes
+--local PPA = thirsty.persistent_player_attributes
 
 function thirsty.hud_clamp(value)
     if value < 0 then
@@ -35,8 +35,9 @@ if minetest.get_modpath("hudbars") then
         icon = 'thirsty_cup_100_16.png'
     }, 20, 20, false)
     function thirsty.hud_init(player)
-        hb.init_hudbar(player, 'thirst',
-            thirsty.hud_clamp(PPA.get_value(player, 'thirsty_hydro')),
+        local pmeta = player:get_meta()
+		hb.init_hudbar(player, 'thirst',
+            thirsty.hud_clamp(pmeta:get_float("thirsty_hydro")),--PPA.get_value(player, 'thirsty_hydro')),
         20, false)
     end
     function thirsty.hud_update(player, value)
@@ -69,11 +70,13 @@ else
     function thirsty.hud_init(player)
         -- above breath bar, for now
         local name = player:get_player_name()
+		local pmeta = player:get_meta()
+		
         thirsty.players[name].hud_id = player:hud_add({
             hud_elem_type = "statbar",
             position = { x=0.5, y=1 },
             text = "thirsty_cup_100_24.png",
-            number = thirsty.hud_clamp(PPA.get_value(player, 'thirsty_hydro')),
+            number = thirsty.hud_clamp(pmeta:get_float("thirsty_hydro")),--PPA.get_value(player, 'thirsty_hydro')),
             direction = 0,
             size = { x=24, y=24 },
             offset = { x=25, y=-(48+24+16+32)},

@@ -75,8 +75,16 @@ local M = thirsty
 dofile(minetest.get_modpath('thirsty')..'/configuration.lua')
 local C = M.config
 
-dofile(minetest.get_modpath('thirsty')..'/persistent_player_attributes.lua')
-local PPA = M.persistent_player_attributes
+minetest.register_on_joinplayer(function(player)	
+	-- setup initial thirst meta value
+	local pmeta = player:get_meta()	
+	if pmeta:get_float("thirsty_hydro") == 0 then
+		pmeta:set_float("thirsty_hydro", thirsty.config.start)	
+	end
+end)
+
+--dofile(minetest.get_modpath('thirsty')..'/persistent_player_attributes.lua')
+--local PPA = M.persistent_player_attributes
 
 thirsty.time_next_tick = thirsty.config.tick_time
 
