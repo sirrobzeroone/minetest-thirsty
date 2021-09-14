@@ -1,25 +1,29 @@
---[[
+------------------------------------------------------------
+--             _____ _    _        _                      --
+--            |_   _| |_ (_)_ _ __| |_ _  _               --
+--              | | | ' \| | '_(_-<  _| || |              --
+--              |_| |_||_|_|_| /__/\__|\_, |              --
+--                                     |__/               --
+------------------------------------------------------------
+--                 Thirsty mod [functions]                --
+------------------------------------------------------------
+--                See init.lua for license                --
+------------------------------------------------------------
 
-Core functions for Thirsty.
-
-See init.lua for license.
-
-]]
-
---local PPA = thirsty.persistent_player_attributes
 local damage_enabled = minetest.settings:get_bool("enable_damage")
 
---[[PPA.register({
-    name = 'thirsty_hydro',
-    min = 0,
-    max = 50,
-    default = 20,
-})--]]
 
 function thirsty.on_joinplayer(player)
     local name = player:get_player_name()
-    -- default entry for new players
-    if not thirsty.players[name] then
+	local pmeta = player:get_meta()
+	
+   -- setup initial thirst player meta value if not present   	
+	if pmeta:get_float("thirsty_hydro") == 0 then
+		pmeta:set_float("thirsty_hydro", thirsty.config.start)	
+	end
+	
+	-- default entry for joining players 
+	if not thirsty.players[name] then
         local pos = player:get_pos()
         thirsty.players[name] = {
             last_pos = math.floor(pos.x) .. ':' .. math.floor(pos.z),
@@ -37,7 +41,6 @@ function thirsty.on_dieplayer(player)
     -- reset after death
 	local pmeta = player:get_meta()
     pmeta:set_float("thirsty_hydro", thirsty.config.start)
-    --PPA.set_value(player, 'thirsty_hydro', 20)
     pl.pending_dmg = 0.0
     pl.thirst_factor = 1.0
 end
@@ -55,13 +58,11 @@ function thirsty.drink(player, value, max)
     end
 	local pmeta = player:get_meta()
     local hydro = pmeta:get_float("thirsty_hydro")
-    --local hydro = PPA.get_value(player, 'thirsty_hydro')
     -- test whether we're not *above* max;
     -- this function should not remove any overhydration
     if hydro < max then
         hydro = math.min(hydro + value, max)
         --print("Drinking by "..value.." to "..hydro)
-        --PPA.set_value(player, 'thirsty_hydro', hydro)
 		pmeta:set_float("thirsty_hydro", hydro)
         return true
     end
@@ -71,7 +72,7 @@ end
 function thirsty.get_hydro(player)
 		local pmeta = player:get_meta()
 		local hydro = pmeta:get_float("thirsty_hydro")
-    return hydro --PPA.get_value(player, 'thirsty_hydro')
+    return hydro
 end
 
 function thirsty.set_thirst_factor(player, factor)
@@ -109,7 +110,7 @@ function thirsty.main_loop(dtime)
             local pos  = player:get_pos()
             local pl = thirsty.players[name]
 			local pmeta = player:get_meta()
-            local hydro = pmeta:get_float("thirsty_hydro")-- PPA.get_value(player, 'thirsty_hydro')
+            local hydro = pmeta:get_float("thirsty_hydro")
 
             -- how long have we been standing "here"?
             -- (the node coordinates in X and Z should be enough)
@@ -202,7 +203,7 @@ function thirsty.main_loop(dtime)
                 if wear > 65534 then wear = 65534 end
                 itemstack:set_wear(wear)
                 thirsty.drink(player, drink, 20)
-                hydro = pmeta:get_float("thirsty_hydro") --PPA.get_value(player, 'thirsty_hydro')
+                hydro = pmeta:get_float("thirsty_hydro")
                 player:get_inventory():set_stack("main", i, itemstack)
             end
 
@@ -215,16 +216,16 @@ function thirsty.main_loop(dtime)
                 if not pl_afk then
                     -- only get thirsty if not AFK
                     local amount = thirsty.config.thirst_per_second * thirsty.config.tick_time * pl.thirst_factor
-					pmeta:set_float("thirsty_hydro",(hydro - amount))--PPA.set_value(player, 'thirsty_hydro', hydro - amount)
+					pmeta:set_float("thirsty_hydro",(hydro - amount))
                     
-					hydro = pmeta:get_float("thirsty_hydro") --PPA.get_value(player, 'thirsty_hydro')
+					hydro = pmeta:get_float("thirsty_hydro")
                     --print("Lowering hydration by "..amount.." to "..hydro)
                 end
             end
 
 
             -- should we only update the hud on an actual change?
-			minetest.debug(player:get_player_name().." "..hydro)
+			-- minetest.debug(player:get_player_name().." "..hydro)
             thirsty.hud_update(player, hydro)
 
             -- damage, if enabled
@@ -271,7 +272,6 @@ function thirsty.drink_handler(player, itemstack, node)
     local pl = thirsty.players[player:get_player_name()]
 	local pmeta = player:get_meta()
     local hydro = pmeta:get_float("thirsty_hydro")
-    --local hydro = PPA.get_value(player, 'thirsty_hydro')
     local old_hydro = hydro
 
     -- selectors, always true, to make the following code easier
@@ -309,7 +309,7 @@ function thirsty.drink_handler(player, itemstack, node)
                 itemstack:set_wear(new_wear)
                 if wear_missing > 0 then -- rounding glitches?
                     thirsty.drink(player, wear_missing * capacity / 65535.0, 20)
-                    hydro = pmeta:get_float("thirsty_hydro") --PPA.get_value(player, 'thirsty_hydro')
+                    hydro = pmeta:get_float("thirsty_hydro")
                 end
             end
         end

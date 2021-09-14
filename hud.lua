@@ -1,7 +1,16 @@
+------------------------------------------------------------
+--             _____ _    _        _                      --
+--            |_   _| |_ (_)_ _ __| |_ _  _               --
+--              | | | ' \| | '_(_-<  _| || |              --
+--              |_| |_||_|_|_| /__/\__|\_, |              --
+--                                     |__/               --
+------------------------------------------------------------
+--              HUD definitions for Thirsty               --
+------------------------------------------------------------
+--                See init.lua for license                --
+------------------------------------------------------------
+
 --[[
-
-HUD definitions for Thirsty
-
 Optionally from one of the supported mods
 
 Any hud needs to define the following functions:
@@ -15,9 +24,7 @@ Any hud needs to define the following functions:
   "thirsty.hud_clamp(value)" function to get an integer between 0
   and 20.
 
-]]
-
---local PPA = thirsty.persistent_player_attributes
+]]--
 
 function thirsty.hud_clamp(value)
     if value < 0 then
@@ -37,33 +44,11 @@ if minetest.get_modpath("hudbars") then
     function thirsty.hud_init(player)
         local pmeta = player:get_meta()
 		hb.init_hudbar(player, 'thirst',
-            thirsty.hud_clamp(pmeta:get_float("thirsty_hydro")),--PPA.get_value(player, 'thirsty_hydro')),
+            thirsty.hud_clamp(pmeta:get_float("thirsty_hydro")),
         20, false)
     end
     function thirsty.hud_update(player, value)
         hb.change_hudbar(player, 'thirst', thirsty.hud_clamp(value), 20)
-    end
-elseif minetest.get_modpath("hud") then
-    -- default positions follow [hud] defaults
-    local position = HUD_THIRST_POS or { x=0.5, y=1 }
-    local offset   = HUD_THIRST_OFFSET or { x=15, y=-133} -- above AIR
-    hud.register('thirst', {
-        hud_elem_type = "statbar",
-        position = position,
-        text = "thirsty_cup_100_24.png",
-        background = "thirsty_cup_0_24.png",
-        number = 20,
-        max = 20,
-        size = HUD_SB_SIZE, -- by default { x=24, y=24 },
-        offset = offset,
-    })
-    function thirsty.hud_init(player)
-        -- automatic by [hud]
-    end
-    function thirsty.hud_update(player, value)
-        hud.change_item(player, 'thirst', {
-            number = thirsty.hud_clamp(value)
-        })
     end
 else
     -- 'builtin' hud
@@ -76,7 +61,7 @@ else
             hud_elem_type = "statbar",
             position = { x=0.5, y=1 },
             text = "thirsty_cup_100_24.png",
-            number = thirsty.hud_clamp(pmeta:get_float("thirsty_hydro")),--PPA.get_value(player, 'thirsty_hydro')),
+            number = thirsty.hud_clamp(pmeta:get_float("thirsty_hydro")),
             direction = 0,
             size = { x=24, y=24 },
             offset = { x=25, y=-(48+24+16+32)},

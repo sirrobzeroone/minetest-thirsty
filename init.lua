@@ -1,14 +1,18 @@
---[[
-
-Thirsty mod [thirsty]
-==========================
-
-A mod that adds a "thirst" mechanic, similar to hunger.
-
-Copyright (C) 2015 Ben Deutsch <ben@bendeutsch.de>
-
-License
--------
+------------------------------------------------------------
+--             _____ _    _        _                      --
+--            |_   _| |_ (_)_ _ __| |_ _  _               --
+--              | | | ' \| | '_(_-<  _| || |              --
+--              |_| |_||_|_|_| /__/\__|\_, |              --
+--                                     |__/               --
+------------------------------------------------------------
+--                 Thirsty mod [thirsty]                  --
+------------------------------------------------------------
+-- A mod that adds a "thirst" mechanic, similar to hunger --
+--  Copyright (C) 2015 Ben Deutsch <ben@bendeutsch.de>    --
+------------------------------------------------------------
+---------------
+--[[ License --
+---------------
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -25,15 +29,16 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
 USA
 
-Terminology: "Thirst" vs. "hydration"
--------------------------------------
+-------------------------------------------
+-- Terminology: "Thirst" vs. "hydration" --
+-------------------------------------------
 
 "Thirst" is the absence of "hydration" (a term suggested by
 everamzah on the Minetest forums, thanks!). The overall mechanic
 is still called "thirst", but the visible bar is that of
 "hydration", filled with "hydro points".
 
-]]
+]]--
 
 -- the main module variable
 thirsty = {
@@ -74,17 +79,6 @@ local M = thirsty
 
 dofile(minetest.get_modpath('thirsty')..'/configuration.lua')
 local C = M.config
-
-minetest.register_on_joinplayer(function(player)	
-	-- setup initial thirst meta value
-	local pmeta = player:get_meta()	
-	if pmeta:get_float("thirsty_hydro") == 0 then
-		pmeta:set_float("thirsty_hydro", thirsty.config.start)	
-	end
-end)
-
---dofile(minetest.get_modpath('thirsty')..'/persistent_player_attributes.lua')
---local PPA = M.persistent_player_attributes
 
 thirsty.time_next_tick = thirsty.config.tick_time
 
