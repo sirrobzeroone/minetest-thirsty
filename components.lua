@@ -22,6 +22,7 @@ on use.
 
 ]]
 
+
 if minetest.get_modpath("vessels") and thirsty.config.register_vessels then
     -- add "drinking" to vessels
     thirsty.augment_item_for_drinking('vessels:drinking_glass', 22)
@@ -29,7 +30,7 @@ if minetest.get_modpath("vessels") and thirsty.config.register_vessels then
     thirsty.augment_item_for_drinking('vessels:steel_bottle', 26)
 end
 
-if minetest.get_modpath("default") and thirsty.config.register_bowl then
+if minetest.get_modpath("default") and thirsty.config.register_bowl and not minetest.registered_craftitems["farming:bowl"] then
     -- our own simple wooden bowl
     minetest.register_craftitem('thirsty:wooden_bowl', {
         description = "Wooden bowl",
@@ -41,10 +42,18 @@ if minetest.get_modpath("default") and thirsty.config.register_bowl then
     minetest.register_craft({
         output = "thirsty:wooden_bowl",
         recipe = {
-            {"group:wood", "", "group:wood"},
-            {"", "group:wood", ""}
+            {"group:wood",           "", "group:wood"},
+            {          "", "group:wood",           ""}
         }
     })
+
+-- modify farming redo wooden bowl to be usable.	
+elseif minetest.registered_craftitems["farming:bowl"] ~= nil then
+
+	local def = minetest.registered_craftitems["farming:bowl"]
+	def.on_use = thirsty.on_use(nil)
+	
+	minetest.register_craftitem(":farming:bowl",def)
 end
 
 --[[

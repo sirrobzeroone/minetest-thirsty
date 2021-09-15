@@ -51,7 +51,7 @@ Getters, setters and such
 
 ]]
 
-function thirsty.drink(player, value, max)
+function thirsty.drink(player, value, max, empty_vessel)
     -- if max is not specified, assume 20
     if not max then
         max = 20
@@ -64,6 +64,11 @@ function thirsty.drink(player, value, max)
         hydro = math.min(hydro + value, max)
         --print("Drinking by "..value.." to "..hydro)
 		pmeta:set_float("thirsty_hydro", hydro)
+		
+		if empty_vessel then
+			player:get_inventory():add_item("main", empty_vessel.." 1")
+		end
+		
         return true
     end
     return false

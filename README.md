@@ -62,7 +62,7 @@ API
 ---
 Some functions of interest:
 
-* thirsty.drink(player, amount, [max]) : instantly drink a bit (up to a max value, default 20)
+* thirsty.drink(player, amount, [max], empty_vessel) : instantly drink a bit (up to a max value, default 20)
 * thirsty.get_hydro(player) : returns the current hydration of a player
 * thirsty.set_thirst_factor(player, factor) : how fast does the given player get thirsty (default is 1.0)
 * thirsty.get_thirst_factor(player) : returns the current thirst factor of a player
