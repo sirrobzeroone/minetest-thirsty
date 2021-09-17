@@ -10,8 +10,97 @@
 --                See init.lua for license                --
 ------------------------------------------------------------
 
-local damage_enabled = minetest.settings:get_bool("enable_damage")
+--[[ notes/ideas
+	move settings from conf to node/item defs were appropriate tool
+	Tier 0 nodes what to do? check for node liquid and drinkable?
+	Tier 1 function to register "Drinking containers" Tier 1
+	Tier 2 function to register "Hydro storing"
+]]--
 
+------------------------------------
+-- Tier 0 Hydrate from node --
+------------------------------------
+-- regen_from_node is a table defining, for each node type, the
+-- amount of hydro per second a player drinks by standing in it.
+-- Default is 0.5 of a hydration per second
+function thirsty.register_hydrate_node(node_name,drink_cup,regen)
+	
+	local drink_cup = drink_cup or true
+	local regen = regen or 0.5	
+	thirsty.config.regen_from_node[node_name] = regen
+	
+	if drink_cup then
+		thirsty.register_drinkable_node(node_name)	
+	end 
+end
+
+------------------------------------
+-- Tier 1 Vessel drinkable node --
+------------------------------------
+-- node_drinkable: which nodes can we drink from, given a
+-- container (a cup, a bowl etc.)
+
+function thirsty.register_drinkable_node(node_name)
+	
+	thirsty.config.node_drinkable[node_name] = true
+ 
+end
+
+---------------------------------------------------
+-- Tier 2 Pre-made drinks and Craftable Canteens --
+---------------------------------------------------
+function thirsty.register_canteen(item_name,hydrate_capacity,max_hydrate,on_use)	
+	
+	local on_use = on_use or true
+	local max_hydrate = max_hydrate or thirsty.config.start
+	
+	thirsty.config.container_capacity[item_name] = hydrate_capacity		
+	thirsty.config.drink_from_container[item_name] = max_hydrate
+	
+	local def = table.copy(minetest.registered_items[item_name])		  
+		  def.liquids_pointable = true
+		  def.stack_max = 1
+		  def.type = "tool"
+	      
+		  if on_use then
+			def.on_use = thirsty.on_use(nil)
+		  end
+		  
+	minetest.register_tool(":"..item_name, def)
+end
+
+
+function thirsty.register_canteen_complex(item_name,hydrate_capacity,max_hydrate,full_image)
+	local full_item_name = item_name.."_full"
+	local max_hydrate = max_hydrate or thirsty.config.start
+		
+	-- register new full version of item into thirsty tables and as tool.
+	thirsty.config.container_capacity[full_item_name] = hydrate_capacity		
+	thirsty.config.drink_from_container[full_item_name] = max_hydrate
+	
+	local def_f = table.copy(minetest.registered_items[item_name])
+		  def_f.inventory_image = full_image or def_f.inventory_image
+		  def_f.wield_image = full_image or def_f.inventory_image
+		  def_f.liquids_pointable = true
+		  def_f.stack_max = 1
+		  def_f.type = "tool"
+		  def_f.description = "Full "..def_f.description
+		  def_f.on_use = thirsty.on_use(nil)
+		  def_f.thirsty_empty = item_name
+		  
+		  minetest.register_tool(":"..full_item_name, def_f)
+		  
+	-- modify empty_vessel registration
+	local def_e = table.copy(minetest.registered_items[item_name])
+
+		  def_e.on_use = thirsty.on_use_empty()
+		  def_e.liquids_pointable = true
+		  def_e.name = nil
+		  def_e.type = nil
+		  minetest.override_item(item_name, def_e)
+end
+
+local damage_enabled = minetest.settings:get_bool("enable_damage")
 
 function thirsty.on_joinplayer(player)
     local name = player:get_player_name()
@@ -63,7 +152,7 @@ function thirsty.drink(player, value, max, empty_vessel)
     if hydro < max then
         hydro = math.min(hydro + value, max)
         --print("Drinking by "..value.." to "..hydro)
-		pmeta:set_float("thirsty_hydro", hydro)
+		pmeta:set_float("thirsty_hydro", hydro)		
 		
 		if empty_vessel then
 			player:get_inventory():add_item("main", empty_vessel.." 1")
@@ -311,9 +400,27 @@ function thirsty.drink_handler(player, itemstack, node)
                     wear_missing = 65534 - wear
                     new_wear = 65534
                 end
-                itemstack:set_wear(new_wear)
+                
+				-- deal with full/empty vessels, when empty remove
+				-- tool version and supply empty name to thirsty.drink
+				-- so player recieves empty version back
+				local empty_vessel_name
+				
+				if new_wear >= 65534 then
+				
+					if minetest.registered_items[item_name].thirsty_empty then
+						itemstack:take_item(1)
+						empty_vessel_name = minetest.registered_items[item_name].thirsty_empty						
+					else
+						itemstack:set_wear(new_wear)					
+					end	
+				-- end full/empty vessel code block	
+				else 
+					itemstack:set_wear(new_wear)
+				end
+				
                 if wear_missing > 0 then -- rounding glitches?
-                    thirsty.drink(player, wear_missing * capacity / 65535.0, 20)
+                    thirsty.drink(player, wear_missing * capacity / 65535.0, 20, empty_vessel_name)
                     hydro = pmeta:get_float("thirsty_hydro")
                 end
             end
@@ -351,6 +458,24 @@ function thirsty.on_use( old_on_use )
     end
 end
 
+function thirsty.on_use_empty()
+    return function(itemstack, player, pointed_thing)
+        local node = nil
+		
+        if pointed_thing and pointed_thing.type == 'node' then
+            node = minetest.get_node(pointed_thing.under)
+        end
+
+		if thirsty.config.node_drinkable[node.name] then 
+			local new_stack = {name = itemstack:get_name().."_full", count=1, wear=1, metadata=""}		
+			player:get_inventory():add_item("main", new_stack)
+			itemstack:take_item()
+			return itemstack
+		end
+    end
+end
+
+
 function thirsty.on_rightclick( old_on_rightclick )
     return function(pos, node, player, itemstack, pointed_thing)
 
@@ -373,6 +498,7 @@ Adapter to add "drink_handler" to any item (node, tool, craftitem).
 
 function thirsty.augment_item_for_drinking( itemname, level )
     local new_definition = {}
+	local level = level or thirsty.config.start
     -- we need to be able to point at the water
     new_definition.liquids_pointable = true
     -- call closure generator with original on_use handler

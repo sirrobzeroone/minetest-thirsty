@@ -46,7 +46,7 @@ thirsty = {
     -- Configuration variables
     config = {
         -- configuration in thirsty.default.conf
-    },
+             },
 
     -- the players' values
     players = {
@@ -75,6 +75,10 @@ thirsty = {
     -- general settings
     time_next_tick = 0.0,
 }
+thirsty.config.regen_from_node      = {}
+thirsty.config.node_drinkable       = {}
+thirsty.config.drink_from_container = {}
+
 local M = thirsty
 
 dofile(minetest.get_modpath('thirsty')..'/configuration.lua')

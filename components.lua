@@ -1,60 +1,65 @@
---[[
+------------------------------------------------------------
+--             _____ _    _        _                      --
+--            |_   _| |_ (_)_ _ __| |_ _  _               --
+--              | | | ' \| | '_(_-<  _| || |              --
+--              |_| |_||_|_|_| /__/\__|\_, |              --
+--                                     |__/               --
+------------------------------------------------------------
+--                 Thirsty mod [components]               --
+------------------------------------------------------------
+--                See init.lua for license                --
+------------------------------------------------------------
 
-Default components for Thirsty.
-
-These are nodes and items that "implement" the functionality
-from functions.lua
-
-See init.lua for license.
-
-]]
-
-
---[[
-
-Drinking containers (Tier 1)
-
-Defines a simple wooden bowl which can be used on water to fill
-your hydration.
-
-Optionally also augments the nodes from vessels to enable drinking
-on use.
-
-]]
-
-
-if minetest.get_modpath("vessels") and thirsty.config.register_vessels then
-    -- add "drinking" to vessels
-    thirsty.augment_item_for_drinking('vessels:drinking_glass', 22)
-    thirsty.augment_item_for_drinking('vessels:glass_bottle', 24)
-    thirsty.augment_item_for_drinking('vessels:steel_bottle', 26)
-end
-
-if minetest.get_modpath("default") and thirsty.config.register_bowl and not minetest.registered_craftitems["farming:bowl"] then
-    -- our own simple wooden bowl
-    minetest.register_craftitem('thirsty:wooden_bowl', {
-        description = "Wooden bowl",
-        inventory_image = "thirsty_bowl_16.png",
-        liquids_pointable = true,
-        on_use = thirsty.on_use(nil),
-    })
-
-    minetest.register_craft({
-        output = "thirsty:wooden_bowl",
-        recipe = {
-            {"group:wood",           "", "group:wood"},
-            {          "", "group:wood",           ""}
-        }
-    })
-
--- modify farming redo wooden bowl to be usable.	
-elseif minetest.registered_craftitems["farming:bowl"] ~= nil then
-
-	local def = minetest.registered_craftitems["farming:bowl"]
-	def.on_use = thirsty.on_use(nil)
+----------------------------
+-- Tier 0 Drinkable Nodes --
+----------------------------
+if minetest.get_modpath("default") then
 	
-	minetest.register_craftitem(":farming:bowl",def)
+	thirsty.register_hydrate_node("default:water_source")
+	thirsty.register_hydrate_node("default:water_flowing")
+	thirsty.register_hydrate_node("default:river_water_source")
+	thirsty.register_hydrate_node("default:river_water_flowing")
+	
 end
+
+-------------------------------------------
+-- Tier 1 Drink from nodes using cup etc --
+-------------------------------------------
+
+	-- Nodes --
+	thirsty.register_drinkable_node("thirsty:drinking_fountain")
+
+
+	-- Items --
+	if minetest.get_modpath("vessels") and thirsty.config.register_vessels then
+		-- add "drinking" to vessels
+		thirsty.augment_item_for_drinking('vessels:drinking_glass', 20)
+	end
+
+	if minetest.get_modpath("default") and thirsty.config.register_bowl and not minetest.registered_craftitems["farming:bowl"] then
+		-- our own simple wooden bowl
+		minetest.register_craftitem('thirsty:wooden_bowl', {
+			description = "Wooden bowl",
+			inventory_image = "thirsty_bowl_16.png",
+			liquids_pointable = true,
+		})
+
+		minetest.register_craft({
+			output = "thirsty:wooden_bowl",
+			recipe = {
+				{"group:wood",           "", "group:wood"},
+				{          "", "group:wood",           ""}
+			}
+		})
+		
+		thirsty.augment_item_for_drinking("thirsty:wooden_bowl", 22)
+		
+	-- modify farming redo wooden bowl to be usable.	
+	elseif thirsty.config.register_bowl and minetest.registered_craftitems["farming:bowl"] then
+	
+		thirsty.augment_item_for_drinking("farming:bowl", 22)
+		
+	end
 
 --[[
 
@@ -71,24 +76,29 @@ Wear corresponds to hydro level as follows:
 
 ]]
 
+if minetest.get_modpath("vessels") and thirsty.config.register_vessels then	
+
+	thirsty.register_canteen_complex("vessels:glass_bottle",10,22,"vessels_glass_bottle_full.png")
+	thirsty.register_canteen_complex("vessels:steel_bottle",20,24)
+	
+end
+
+
 if minetest.get_modpath("default") and thirsty.config.register_canteens then
 
-    minetest.register_tool('thirsty:steel_canteen', {
+    minetest.register_craftitem('thirsty:steel_canteen', {
         description = 'Steel canteen',
         inventory_image = "thirsty_steel_canteen_16.png",
-        liquids_pointable = true,
-        stack_max = 1,
-        on_use = thirsty.on_use(nil),
     })
 
-    minetest.register_tool('thirsty:bronze_canteen', {
-        description = 'Bronze canteen',
+    minetest.register_craftitem("thirsty:bronze_canteen", {
+        description = "Bronze canteen",
         inventory_image = "thirsty_bronze_canteen_16.png",
-        liquids_pointable = true,
-        stack_max = 1,
-        on_use = thirsty.on_use(nil),
     })
-
+	
+	thirsty.register_canteen("thirsty:steel_canteen",40,25)
+	thirsty.register_canteen("thirsty:bronze_canteen",60,25)
+	
     minetest.register_craft({
         output = "thirsty:steel_canteen",
         recipe = {
