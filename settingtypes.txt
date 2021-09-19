@@ -1,0 +1,63 @@
+[*General]
+# Hudbar/player max value for hydration
+thirsty_starting_value (Thirst Max Value) int 20
+
+# The period, in seconds, in which this mod updates values. 
+# Changing this will not directly affect other values, but 
+# may change computation load or accuracy.
+thirsty_tick_time (Thirst Tick Time) float 0.5
+
+# Thirst per second (full hydration is 20 hydro points)
+# Basic Calc 1/30 = 0.033
+thirst_per_second (Thirst Per Second) float 0.033
+
+# Damage per second if completely thirsty / out of hydration.
+# Basic Calc 1/10 = 0.1
+damage_per_second (Damage Per Second) float 0.1
+
+# How long in seconds you have to remain still to drink from standing in water.
+stand_still_for_drink (Stand Still to Drink) float 1.0
+
+# How long in seconds of not moving before a player is deemed
+# AFK (away from keyboard), such players no longer get thirsty
+# or damaged.
+stand_still_for_afk (AFK Time Seconds) int 120
+   
+[*Water Fountain]
+# Regeneration from being within a fountain's radius. 
+# (it's as if you're standing in water)
+regen_from_fountain (Regen from Fountains) float 0.5
+
+# How far should the fountain scanning pyramid go?
+fountain_height (Fountain Height) int 4 
+
+# The max level of a fountain
+fountain_max_level (Fountain Max Level) int 20
+
+# How many nodes away can you still benefit from a fountain, per fountain level
+fountain_distance_per_level (Fountain Distance Per Level) int 5
+
+[*Thirsty Mod Items]
+# Add the wooden bowl and crafting recipe?
+# Will Augument Farming Redo Wooden Bowl if set to true
+# and Farming redo is being used
+register_bowl  (Simple Wooden Bowl) bool true
+
+# Add the canteens and crafting recipes?
+register_canteens (Steel/Bronze Canteens) bool true
+
+# Add the drinking fountain and crafting recipes?
+register_drinking_fountain (Drinking Fountains) bool true
+
+# Add the fountain and extenders and crafting recipes?
+register_fountains (Water Fountains) bool true
+
+# Add the amulets (extractor / injector) and crafting recipes?
+register_amulets (Amulets) bool true
+
+[*Other Mods]
+# Should we augment the vessels from the "vessels" mod?
+register_vessels  (Vessels Mod) bool true
+
+# Make Glass of Milk from Mobs Animal Drinkable?
+register_glass_milk (Mobs Glass Milk) bool true

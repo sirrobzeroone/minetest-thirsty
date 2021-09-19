@@ -17,38 +17,102 @@
 	Tier 2 function to register "Hydro storing"
 ]]--
 
-------------------------------------
--- Tier 0 Hydrate from node --
-------------------------------------
+--------------------------
+-- Tier 0 API Functions --
+--------------------------
 -- regen_from_node is a table defining, for each node type, the
 -- amount of hydro per second a player drinks by standing in it.
 -- Default is 0.5 of a hydration per second
 function thirsty.register_hydrate_node(node_name,drink_cup,regen)
 	
 	local drink_cup = drink_cup or true
-	local regen = regen or 0.5	
+	local regen = regen or 0.5
+	
 	thirsty.config.regen_from_node[node_name] = regen
+	thirsty.config.fountain_type[node_name] = "w"
 	
 	if drink_cup then
 		thirsty.register_drinkable_node(node_name)	
 	end 
 end
 
-------------------------------------
--- Tier 1 Vessel drinkable node --
-------------------------------------
+--------------------------
+-- Tier 1 API Functions --
+--------------------------
 -- node_drinkable: which nodes can we drink from, given a
 -- container (a cup, a bowl etc.)
-
-function thirsty.register_drinkable_node(node_name)
+function thirsty.register_drinkable_node(node_name,max_hydrate)
+	local max_hydrate = max_hydrate or nil
 	
 	thirsty.config.node_drinkable[node_name] = true
+	
+	if max_hydrate then
+		thirsty.config.drink_from_node[node_name] = max_hydrate
+	end
  
 end
 
----------------------------------------------------
--- Tier 2 Pre-made drinks and Craftable Canteens --
----------------------------------------------------
+function thirsty.on_use( old_on_use )
+    return function(itemstack, player, pointed_thing)
+        local node = nil
+        if pointed_thing and pointed_thing.type == 'node' then
+            node = minetest.get_node(pointed_thing.under)
+        end
+
+        thirsty.drink_handler(player, itemstack, node)
+
+        -- call original on_use, if provided
+        if old_on_use ~= nil then
+            return old_on_use(itemstack, player, pointed_thing)
+        else
+            return itemstack
+        end
+    end
+end
+
+function thirsty.augment_item_for_drinking( itemname, level )
+    local new_definition = {}
+	local level = level or thirsty.config.start
+    -- we need to be able to point at the water
+    new_definition.liquids_pointable = true
+    -- call closure generator with original on_use handler
+    new_definition.on_use = thirsty.on_use(
+        minetest.registered_items[itemname].on_use
+    )
+    -- overwrite the node definition with almost the original
+    minetest.override_item(itemname, new_definition)
+
+    -- add configuration settings
+    thirsty.config.drink_from_container[itemname] = level
+end
+
+
+--------------------------
+-- Tier 2 API Functions --
+--------------------------
+function thirsty.drink(player, value, max, empty_vessel)
+    -- if max is not specified, assume 20
+    if not max then
+        max = 20
+    end
+	local pmeta = player:get_meta()
+    local hydro = pmeta:get_float("thirsty_hydro")
+    -- test whether we're not *above* max;
+    -- this function should not remove any overhydration
+    if hydro < max then
+        hydro = math.min(hydro + value, max)
+        --print("Drinking by "..value.." to "..hydro)
+		pmeta:set_float("thirsty_hydro", hydro)		
+		
+		if empty_vessel then
+			player:get_inventory():add_item("main", empty_vessel.." 1")
+		end
+		
+        return true
+    end
+    return false
+end
+
 function thirsty.register_canteen(item_name,hydrate_capacity,max_hydrate,on_use)	
 	
 	local on_use = on_use or true
@@ -68,7 +132,6 @@ function thirsty.register_canteen(item_name,hydrate_capacity,max_hydrate,on_use)
 		  
 	minetest.register_tool(":"..item_name, def)
 end
-
 
 function thirsty.register_canteen_complex(item_name,hydrate_capacity,max_hydrate,full_image)
 	local full_item_name = item_name.."_full"
@@ -100,7 +163,91 @@ function thirsty.register_canteen_complex(item_name,hydrate_capacity,max_hydrate
 		  minetest.override_item(item_name, def_e)
 end
 
+-- note not offically exposed to API yet, use with caution may change
+function thirsty.on_use_empty()
+    return function(itemstack, player, pointed_thing)
+        local node = nil
+		
+        if pointed_thing and pointed_thing.type == 'node' then
+            node = minetest.get_node(pointed_thing.under)
+        end
+
+		if thirsty.config.node_drinkable[node.name] then 
+			local new_stack = {name = itemstack:get_name().."_full", count=1, wear=1, metadata=""}		
+			player:get_inventory():add_item("main", new_stack)
+			itemstack:take_item()
+			return itemstack
+		end
+    end
+end
+
+
+--------------------------
+-- Tier 3 API Functions --
+--------------------------
+function thirsty.on_rightclick( old_on_rightclick )
+    return function(pos, node, player, itemstack, pointed_thing)
+
+        thirsty.drink_handler(player, itemstack, node)
+
+        -- call original on_rightclick, if provided
+        if old_on_rightclick ~= nil then
+            return old_on_rightclick(pos, node, player, itemstack, pointed_thing)
+        else
+            return itemstack
+        end
+    end
+end
+
+
+--------------------------
+-- Tier 4 API Functions --
+--------------------------
+function thirsty.register_water_fountain(node_name)
+	thirsty.config.fountain_type[node_name] = "f"
+end 
+
+
+--------------------------
+-- Tier 5 API Functions --
+--------------------------
+function thirsty.register_amulet_extractor(item_name,value)
+	thirsty.config.extraction_for_item[item_name] = value
+end
+
+
+function thirsty.register_amulet_supplier(item_name,value)
+	thirsty.config.injection_for_item[item_name] = value
+end
+
+function thirsty.get_thirst_factor(player)
+    local name = player:get_player_name()
+    local pl = thirsty.players[name]
+    return pl.thirst_factor
+end
+
+function thirsty.set_thirst_factor(player, factor)
+    local name = player:get_player_name()
+    local pl = thirsty.players[name]
+    pl.thirst_factor = factor
+end
+
+
+-------------------------
+-- Other API Functions --
+-------------------------
+function thirsty.get_hydro(player)
+		local pmeta = player:get_meta()
+		local hydro = pmeta:get_float("thirsty_hydro")
+    return hydro
+end
+
+
+----------------------------
+-- Mod Internal Functions --
+----------------------------
 local damage_enabled = minetest.settings:get_bool("enable_damage")
+
 
 function thirsty.on_joinplayer(player)
     local name = player:get_player_name()
@@ -124,6 +271,7 @@ function thirsty.on_joinplayer(player)
     thirsty.hud_init(player)
 end
 
+
 function thirsty.on_dieplayer(player)
     local name = player:get_player_name()
     local pl   = thirsty.players[name]
@@ -134,58 +282,6 @@ function thirsty.on_dieplayer(player)
     pl.thirst_factor = 1.0
 end
 
---[[
-
-Getters, setters and such
-
-]]
-
-function thirsty.drink(player, value, max, empty_vessel)
-    -- if max is not specified, assume 20
-    if not max then
-        max = 20
-    end
-	local pmeta = player:get_meta()
-    local hydro = pmeta:get_float("thirsty_hydro")
-    -- test whether we're not *above* max;
-    -- this function should not remove any overhydration
-    if hydro < max then
-        hydro = math.min(hydro + value, max)
-        --print("Drinking by "..value.." to "..hydro)
-		pmeta:set_float("thirsty_hydro", hydro)		
-		
-		if empty_vessel then
-			player:get_inventory():add_item("main", empty_vessel.." 1")
-		end
-		
-        return true
-    end
-    return false
-end
-
-function thirsty.get_hydro(player)
-		local pmeta = player:get_meta()
-		local hydro = pmeta:get_float("thirsty_hydro")
-    return hydro
-end
-
-function thirsty.set_thirst_factor(player, factor)
-    local name = player:get_player_name()
-    local pl = thirsty.players[name]
-    pl.thirst_factor = factor
-end
-
-function thirsty.get_thirst_factor(player)
-    local name = player:get_player_name()
-    local pl = thirsty.players[name]
-    return pl.thirst_factor
-end
-
---[[
-
-Main Loop (Tier 0)
-
-]]
 
 function thirsty.main_loop(dtime)
     -- get thirsty
@@ -270,6 +366,7 @@ function thirsty.main_loop(dtime)
                     end
                 end
             end
+			
             if extractor_max > 0.0 and container_not_full then
                 local i = container_not_full[1]
                 local itemstack = container_not_full[2]
@@ -283,6 +380,7 @@ function thirsty.main_loop(dtime)
                 itemstack:set_wear(wear)
                 player:get_inventory():set_stack("main", i, itemstack)
             end
+			
             if injector_max > 0.0 and container_not_empty then
                 local i = container_not_empty[1]
                 local itemstack = container_not_empty[2]
@@ -354,13 +452,6 @@ function thirsty.main_loop(dtime)
     end
 end
 
---[[
-
-General handler
-
-Most tools, nodes and craftitems use the same code, so here it is:
-
-]]
 
 function thirsty.drink_handler(player, itemstack, node)
     local pl = thirsty.players[player:get_player_name()]
@@ -433,84 +524,6 @@ function thirsty.drink_handler(player, itemstack, node)
     end
 end
 
---[[
-
-Adapters for drink_handler to on_use and on_rightclick slots.
-These close over the next handler to call in a chain, if desired.
-
-]]
-
-function thirsty.on_use( old_on_use )
-    return function(itemstack, player, pointed_thing)
-        local node = nil
-        if pointed_thing and pointed_thing.type == 'node' then
-            node = minetest.get_node(pointed_thing.under)
-        end
-
-        thirsty.drink_handler(player, itemstack, node)
-
-        -- call original on_use, if provided
-        if old_on_use ~= nil then
-            return old_on_use(itemstack, player, pointed_thing)
-        else
-            return itemstack
-        end
-    end
-end
-
-function thirsty.on_use_empty()
-    return function(itemstack, player, pointed_thing)
-        local node = nil
-		
-        if pointed_thing and pointed_thing.type == 'node' then
-            node = minetest.get_node(pointed_thing.under)
-        end
-
-		if thirsty.config.node_drinkable[node.name] then 
-			local new_stack = {name = itemstack:get_name().."_full", count=1, wear=1, metadata=""}		
-			player:get_inventory():add_item("main", new_stack)
-			itemstack:take_item()
-			return itemstack
-		end
-    end
-end
-
-
-function thirsty.on_rightclick( old_on_rightclick )
-    return function(pos, node, player, itemstack, pointed_thing)
-
-        thirsty.drink_handler(player, itemstack, node)
-
-        -- call original on_rightclick, if provided
-        if old_on_rightclick ~= nil then
-            return old_on_rightclick(pos, node, player, itemstack, pointed_thing)
-        else
-            return itemstack
-        end
-    end
-end
-
---[[
-
-Adapter to add "drink_handler" to any item (node, tool, craftitem).
-
-]]
-
-function thirsty.augment_item_for_drinking( itemname, level )
-    local new_definition = {}
-	local level = level or thirsty.config.start
-    -- we need to be able to point at the water
-    new_definition.liquids_pointable = true
-    -- call closure generator with original on_use handler
-    new_definition.on_use = thirsty.on_use(
-        minetest.registered_items[itemname].on_use
-    )
-    -- overwrite the node definition with almost the original
-    minetest.override_item(itemname, new_definition)
-
-    -- add configuration settings
-    thirsty.config.drink_from_container[itemname] = level
-end
 
 function thirsty.fountain_abm(pos, node)
     local fountain_count = 0
