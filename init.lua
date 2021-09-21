@@ -155,3 +155,8 @@ if minetest.get_modpath("farming") and
    farming.mod == "redo" then
 	dofile(modpath..'/interop_farming_redo.lua')
 end
+
+-- ethereal specific config
+if minetest.get_modpath("ethereal") then
+	dofile(modpath..'/interop_ethereal.lua')
+end
