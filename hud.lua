@@ -39,7 +39,7 @@ end
 if minetest.get_modpath("hudbars") then
     hb.register_hudbar('thirst', 0xffffff, "Hydration", {
         bar = 'thirsty_hudbars_bar.png',
-        icon = 'thirsty_cup_100_16.png'
+        icon = 'thirsty_drop_100_24_cc0.png'
     }, 20, 20, false)
     function thirsty.hud_init(player)
         local pmeta = player:get_meta()
@@ -60,7 +60,7 @@ else
         thirsty.players[name].hud_id = player:hud_add({
             hud_elem_type = "statbar",
             position = { x=0.5, y=1 },
-            text = "thirsty_cup_100_24.png",
+            text = "thirsty_drop_100_24_cc0.png",
             number = thirsty.hud_clamp(pmeta:get_float("thirsty_hydro")),
             direction = 0,
             size = { x=24, y=24 },

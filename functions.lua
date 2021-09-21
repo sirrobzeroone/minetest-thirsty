@@ -103,6 +103,7 @@ function thirsty.drink(player, value, max, empty_vessel)
         hydro = math.min(hydro + value, max)
         --print("Drinking by "..value.." to "..hydro)
 		pmeta:set_float("thirsty_hydro", hydro)		
+		minetest.sound_play("thirsty_breviceps_drink-drinking-liquid", { to_player = player:get_player_name(), gain = 2.0, })
 		
 		if empty_vessel then
 			player:get_inventory():add_item("main", empty_vessel.." 1")

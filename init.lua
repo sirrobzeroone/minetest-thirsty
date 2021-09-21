@@ -30,19 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
 USA
 
 --Media/Images--
-vessels_glass_bottle_full_cc_by_sa_3.png
-	Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
-	modified from vessels_glass_bottle.png
-	Copyright (C) 2012-2016 Vanessa Ezekowitz
-	Copyright (C) 2016 Thomas-S
-	
-thirsty_amulet_moisture_cc0.png
-	Public Domain CC0 
-	Sirrobzeroone
-
-thirsty_amulet_hydration_cc0.png
-	Public Domain CC0 
-	Sirrobzeroone
+See Readme.MD - Mix of:
+CC BY-SA 3.0
+CC BY-SA 4.0
+CC0 1.0 Universal
 
 -------------------------------------------
 -- Terminology: "Thirst" vs. "hydration" --
@@ -138,15 +129,29 @@ thirsty = {
 
 local M = thirsty
 local C = M.config
+local modpath = minetest.get_modpath("thirsty")
 
 thirsty.time_next_tick = thirsty.config.tick_time
 
-dofile(minetest.get_modpath('thirsty')..'/hud.lua')
-dofile(minetest.get_modpath('thirsty')..'/functions.lua')
+dofile(modpath..'/hud.lua')
+dofile(modpath..'/functions.lua')
 
 minetest.register_on_joinplayer(thirsty.on_joinplayer)
 minetest.register_on_dieplayer(thirsty.on_dieplayer)
 minetest.register_globalstep(thirsty.main_loop)
 
-dofile(minetest.get_modpath('thirsty')..'/components_external_nodes_items.lua')
-dofile(minetest.get_modpath('thirsty')..'/components.lua')
+dofile(modpath..'/components_external_nodes_items.lua')
+dofile(modpath..'/components.lua')
+dofile(modpath..'/interop_a_functions.lua')
+
+
+-- mobs_animal specific config
+if minetest.get_modpath("mobs_animal") then
+	dofile(modpath..'/interop_mobs_animal.lua')
+end
+
+-- farming(redo) specific config
+if minetest.get_modpath("farming") and 
+   farming.mod == "redo" then
+	dofile(modpath..'/interop_farming_redo.lua')
+end

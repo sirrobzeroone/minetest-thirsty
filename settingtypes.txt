@@ -58,6 +58,3 @@ register_amulets (Amulets) bool true
 [*Other Mods]
 # Should we augment the vessels from the "vessels" mod?
 register_vessels  (Vessels Mod) bool true
-
-# Make Glass of Milk from Mobs Animal Drinkable?
-register_glass_milk (Mobs Glass Milk) bool true

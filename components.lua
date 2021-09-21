@@ -12,35 +12,43 @@
 
 local E = thirsty.ext_nodes_items
 
-----------------------------
+--------------------------
 -- Tier 0 Hydrate Nodes --
-----------------------------
-if minetest.get_modpath("default") then	
-	thirsty.register_hydrate_node("default:water_source")
-	thirsty.register_hydrate_node("default:water_flowing")
-	thirsty.register_hydrate_node("default:river_water_source")
-	thirsty.register_hydrate_node("default:river_water_flowing")	
+--------------------------
+if minetest.registered_items[E.water_source] then
+	thirsty.register_hydrate_node(E.water_source)
 end
+
+if minetest.registered_items[E.water_source_f] then
+	thirsty.register_hydrate_node(E.water_source_f)
+end
+
+if minetest.registered_items[E.water_source_riv] then
+	thirsty.register_hydrate_node(E.water_source_riv)
+end
+
+if minetest.registered_items[E.water_source_riv_f] then
+	thirsty.register_hydrate_node(E.water_source_riv_f)
+end
+
 
 -------------------------------------------
 -- Tier 1 Drink from nodes using cup etc --
 -------------------------------------------
-
 	-- Nodes --
 	-- see drinking fountain
 
-
 	-- Items --
-	if minetest.get_modpath("vessels") and thirsty.config.register_vessels then
+	if minetest.registered_items[E.drinking_glass] and thirsty.config.register_vessels then
 		-- add "drinking" to vessels
-		thirsty.augment_item_for_drinking('vessels:drinking_glass', 20)
+		thirsty.augment_item_for_drinking(E.drinking_glass, 20)
 	end
 
-	if minetest.get_modpath("default") and thirsty.config.register_bowl and not minetest.registered_craftitems["farming:bowl"] then
+	if thirsty.config.register_bowl and not minetest.registered_items[E.wood_bowl] then
 		-- our own simple wooden bowl
 		minetest.register_craftitem('thirsty:wooden_bowl', {
 			description = "Wooden bowl",
-			inventory_image = "thirsty_bowl_16.png",
+			inventory_image = "thirsty_bowl_cc0.png",
 			liquids_pointable = true,
 		})
 
@@ -55,9 +63,9 @@ end
 		thirsty.augment_item_for_drinking("thirsty:wooden_bowl", 22)
 		
 	-- modify farming redo wooden bowl to be usable.	
-	elseif thirsty.config.register_bowl and minetest.registered_craftitems["farming:bowl"] then
+	elseif thirsty.config.register_bowl and minetest.registered_items[E.wood_bowl] then
 	
-		thirsty.augment_item_for_drinking("farming:bowl", 22)
+		thirsty.augment_item_for_drinking(E.wood_bowl, 22)
 		
 	end
 
@@ -76,37 +84,27 @@ Wear corresponds to hydro level as follows:
 
 ]]
 
-if minetest.get_modpath("mobs_animal") and thirsty.config.register_glass_milk and minetest.registered_items["mobs:glass_milk"] then	
-
-	local def = table.copy(minetest.registered_items["mobs:glass_milk"])
-	      def.on_use =  function(itemstack,player,pointed_thing)
-							thirsty.drink(player,2,22,"vessels:drinking_glass")
-							minetest.do_item_eat(1,nil, itemstack:take_item(), player, pointed_thing)
-							return itemstack
-						end
-		
-minetest.register_craftitem(":mobs:glass_milk", def)
-
+if thirsty.config.register_vessels and minetest.registered_items[E.glass_bottle] then	
+	thirsty.register_canteen_complex(E.glass_bottle,10,22,E.glass_bottle_f)	
 end
 
-if minetest.get_modpath("vessels") and thirsty.config.register_vessels then	
-
-	thirsty.register_canteen_complex("vessels:glass_bottle",10,22,"vessels_glass_bottle_full_cc_by_sa_3.png")
-	thirsty.register_canteen_complex("vessels:steel_bottle",20,24)
-	
+if thirsty.config.register_vessels and minetest.registered_items[E.steel_bottle] then	
+	thirsty.register_canteen_complex(E.steel_bottle,20,24)	
 end
 
 
-if minetest.get_modpath("default") and thirsty.config.register_canteens then
+if thirsty.config.register_canteens and 
+   minetest.registered_items[E.steel_ingot] and 
+   minetest.registered_items[E.bronze_ingot] then
 
     minetest.register_craftitem('thirsty:steel_canteen', {
         description = 'Steel canteen',
-        inventory_image = "thirsty_steel_canteen_16.png",
+        inventory_image = "thirsty_steel_canteen_cc0.png",
     })
 
     minetest.register_craftitem("thirsty:bronze_canteen", {
         description = "Bronze canteen",
-        inventory_image = "thirsty_bronze_canteen_16.png",
+        inventory_image = "thirsty_bronze_canteen_cc0.png",
     })
 	
 	thirsty.register_canteen("thirsty:steel_canteen",40,25)
@@ -135,7 +133,9 @@ end
 --  Tier 3 Drinking Fountain --
 -------------------------------
 
-if minetest.get_modpath("default") and minetest.get_modpath("bucket") and thirsty.config.register_drinking_fountain then
+if thirsty.config.register_drinking_fountain and 
+   minetest.registered_items[E.stone] and 
+   minetest.registered_items[E.bucket_water]then
 
     minetest.register_node('thirsty:drinking_fountain', {
         description = 'Drinking fountain',
@@ -193,7 +193,10 @@ end
 -- Tier 4: Water fountains, Water extenders --
 ----------------------------------------------
 
-if minetest.get_modpath("default") and minetest.get_modpath("bucket") and thirsty.config.register_fountains then
+if thirsty.config.register_fountains and   
+   minetest.registered_items[E.copper_ingot] and
+   minetest.registered_items[E.mese_crystal] and   
+   minetest.registered_items[E.bucket_water] then
 
     minetest.register_node('thirsty:water_fountain', {
         description = 'Water fountain',
@@ -262,7 +265,10 @@ they are searched for in player's inventories
 
 ]]
 
-if minetest.get_modpath("default") and minetest.get_modpath("bucket") and thirsty.config.register_amulets then
+if thirsty.config.register_amulets and
+   minetest.registered_items[E.diamond] and
+   minetest.registered_items[E.mese_crystal] and   
+   minetest.registered_items[E.bucket_water] then
 
     minetest.register_craftitem('thirsty:injector', {
         description = 'Amulet of Hydration',
