@@ -60,14 +60,14 @@ getting thirsty).
 
 To register additional drinkable nodes use the function:
 	
-**thirsty.register_hydrate_node(node_name,also_drinkable_with_cup,regen_rate_per_second)**	
+**thirsty.register_hydrate_node(node_name,also_drinkable_with_cup,regen_rate_per_second)**  
 
- **"node_name"** - registered node name
+**"node_name"** - registered node name  
 **"also_drinkable_with_cup"** - optional will default to true, if true 
  registers as per thirsty.register_drinkable_node() with max_hydration 
- equal to thirsty.config.start (default 20) 
+ equal to thirsty.config.start (default 20)  
 **"regen_rate_per_second"** - optional will default to 0.5 hydration 
- points per second standing still in the liquid.
+ points per second standing still in the liquid.  
 
 **Example**
 
@@ -78,29 +78,29 @@ To register additional drinkable nodes use the function:
 Use a container (e.g. from `vessels`) on water to instantly
 fill your hydration. Craftable wooden bowl included.
 
-**NODES**
+**NODES**  
 Configure nodes that can be drunk from using a cup/glass etc assuming this was
 not done as part of Tier 0 or if you wish to override max_hydration to be more
 than the default value (normally 20):
 
-** thirsty.register_drinkable_node(node_name,max_hydration)**
-**"item_name"** registered node name
+** thirsty.register_drinkable_node(node_name,max_hydration)**  
+**"item_name"** registered node name  
 **"max_hydration"**  optional will default to thirsty.config.start (default 20)
  max hydration can be set above 20 to encourage use of drinking fountains or
- hydration/drinking infrastructure.
+ hydration/drinking infrastructure.  
 
 **Example**
 
     thirsty.register_drinkable_node("thirsty:drinking_fountain",30)
 	
-**ITEMS**
+**ITEMS**  
 Configure cups/glasses/bowls etc that can be used to scoop up water and then
 drink from:
 
-**thirsty.augment_item_for_drinking(item_name, max_hydration)**
-**"item_name"** registered item name
+**thirsty.augment_item_for_drinking(item_name, max_hydration)**  
+**"item_name"** registered item name  
 **"max_hydration"** optional will default to thirsty.config.start (default 20)
- max hydration can be set above 20 to encourage use of items to drink with.
+ max hydration can be set above 20 to encourage use of items to drink with.  
 
 This will overide/replace any existing code the item may have in it's 
 item_name.on_use. So not recommended for items with custom on_use
@@ -109,8 +109,8 @@ code already.
 
     thirsty.augment_item_for_drinking('vessels:drinking_glass', 20)
 
-**Integrate thirsty into item custom on_use code**
-thirsty.on_use()
+**Integrate thirsty into item custom on_use code**  
+thirsty.on_use()  
 **Example**
 
     minetest.register_craftitem("mod_name:empty_cup", {
@@ -136,18 +136,18 @@ thirsty.on_use()
 
 Pre-made drinks and craftable canteens
 
-**PREMADE DRINKS** 
+**PREMADE DRINKS**  
 Pre-made drinks can include anything the player may have had to craft 
 or cook and you wish the player to restore some hydration on_use:
 	
-**thirsty.drink(player, amount, max_hydration, empty_vessel)**
+**thirsty.drink(player, amount, max_hydration, empty_vessel)**  
 		
-**"player"** player object see minetest player object
-**"amount"** number of hydration points to restore
+**"player"** player object see minetest player object  
+**"amount"** number of hydration points to restore  
 **"max hydration"** - optional will default to thirsty.config.start (default 20)
- max hydration can be set above 20 to encourage use of items to drink with.
-**"empty_vessel"** - optional empty vessel or item to return to player.
-
+ max hydration can be set above 20 to encourage use of items to drink with.  
+**"empty_vessel"** - optional empty vessel or item to return to player.  
+  
 **Example**
 
     minetest.register_craftitem("mod_name:cup_of_soup", {
@@ -160,41 +160,41 @@ or cook and you wish the player to restore some hydration on_use:
     				 end,
     	})
 
-**CANTEENS, FLASKS or BOTTLES**
+**CANTEENS, FLASKS or BOTTLES**  
 	Craftable items that you may wish to configure to hold a certain amount of 
 	liquid hydration points. If used these items are converted to registered tools
 	rather than straight regsitered items with stack maximum of 1 so that current 
 	full/empty value is displayed to the player (using wear). Thirsty includes a 
 	Steel canteen with 40 hydration point capacity and a Bronze canteen with 60 
 	hydration point capacity. These can be refilled by clicking on any thirsty 
-	registered hydrate_node.
+	registered hydrate_node.  
 	
 **thirsty.register_canteen(item_name,hydrate_capacity,max_hydration,on_use)**
 	
-**"item_name"** Registered item name to convert to canteen type container
-**"hydrate_capacity"** How many hydration points the container holds 1 full bar = 20
+**"item_name"** Registered item name to convert to canteen type container  
+**"hydrate_capacity"** How many hydration points the container holds 1 full bar = 20  
 **"max hydration"**  Optional will default to thirsty.config.start (default 20)
- max hydration can be set above 20 to encourage use of items to drink with.
-**"on_use"**  Optional default is true. Will set item.on_use function to; thirsty.on_use(), however if set to false on_use wont be over written. Mod registering item will need to manually include "thirsty.on_use()" inside its on_use item definition or canteen will not work note see Tier 1 - thirsty.on_use()
+ max hydration can be set above 20 to encourage use of items to drink with.  
+**"on_use"**  Optional default is true. Will set item.on_use function to; thirsty.on_use(), however if set to false on_use wont be over written. Mod registering item will need to manually include "thirsty.on_use()" inside its on_use item definition or canteen will not work note see Tier 1 - thirsty.on_use()  
 
-**Example**
+**Example**  
 
     thirsty.register_canteen("thirsty:bronze_canteen",60,25)
 
  
- **COMPLEX CANTEENS, FLASKS or BOTTLES**
+ **COMPLEX CANTEENS, FLASKS or BOTTLES**  
  Using the above will mean items can no longer be stacked most importantly when they are empty. The below function will overcome this as it will register a full version
- of the empty vessel as a tool. Naturally if you do not wish or need the empty containers to stack just use thirsty.register_canteen. Once a container is empty it will be replaced with the empty version.
+ of the empty vessel as a tool. Naturally if you do not wish or need the empty containers to stack just use thirsty.register_canteen. Once a container is empty it will be replaced with the empty version.  
 	 
-**thirsty.register_canteen_complex(item/node_name,hydrate_capacity,max_hydration,full_image)**
+**thirsty.register_canteen_complex(item/node_name,hydrate_capacity,max_hydration,full_image)**  
 	 	 
-**"item_name" or "node_name"** Registered item name to convert to canteen type tool container
-**"hydrate_capacity"** How many hydration points the container holds 1 full bar = 20
+**"item_name" or "node_name"** Registered item name to convert to canteen type tool container  
+**"hydrate_capacity"** How many hydration points the container holds 1 full bar = 20  
 **"max hydration"**  Optional will default to thirsty.config.start (default 20)
- max hydration can be set above 20 to encourage use of items to drink with.
- **"full_image"** The full image of the empty item used for inventory image and wield image
+ max hydration can be set above 20 to encourage use of items to drink with.  
+ **"full_image"** The full image of the empty item used for inventory image and wield image  
  
-**Example**
+**Example**  
 
     thirsty.register_canteen_complex("vessels:glass_bottle",10,22,"vessels_glass_bottle_full.png")
 
@@ -208,7 +208,7 @@ Add the below to the on_rightclick function inside your node definition,
 you'll also need to register the node as a drinkable node so you'll need
 to also run - thirsty.register_drinkable_node(node_name). Recommended that
 the node.drop for your node dosen't equal itself otherwise players will simply
-use these as endless canteens/bottles.
+use these as endless canteens/bottles.  
 
 **thirsty.on_rightclick()**
 
@@ -241,7 +241,8 @@ use these as endless canteens/bottles.
 Placeable fountain node(s) to fill the hydration of all
 players within range. Placing more nodes increases the range.
 
-**thirsty.register_water_fountain(node_name)**
+**thirsty.register_water_fountain(node_name)**  
+
 **Example**	
 
     thirsty.register_water_fountain("thirsty:water_fountain")
@@ -275,34 +276,32 @@ once and for all.
 
 **thirsty.register_amulet_extractor(item_name,value)**
 	
-**"item_name"**  Registered item name
-**"value"**            Number of Hydration points extracted per half second 
-              (thirsty.config.tick_time)
+**"item_name"**  Registered item name  
+**"value"**            Number of Hydration points extracted per half second (thirsty.config.tick_time)  
  *Note: Container must be avaliable in Inventory with avaliable space to add hydration points to.*				  
 
 **Example**
 
     thirsty.register_amulet_extractor("thirsty:extractor", 0.6)	
 
-**Amulet of Moisture**  - Absorbs moisture from the surronding environment places it into a canteen or other water holding item. Must be held in Inventory.
+**Amulet of Moisture**  - Absorbs moisture from the surronding environment places it into a canteen or other water holding item. Must be held in Inventory.  
 
 **thirsty.register_amulet_supplier(item_name,value)**
 
-**"item_name"** Registered item name
-**"value"**     Number of Hydration points supplied to player per half second.
-	          (thirsty.config.tick_time) 
- *Note: Container must be avaliable in Inventory with avaliable space to add hydration points to.*	
+**"item_name"** Registered item name  
+**"value"**     Number of Hydration points supplied to player per half second.(thirsty.config.tick_time)  
+ *Note: Container must be avaliable in Inventory with avaliable space to add hydration points to.*  	
 			  
-**Example**	
+**Example**  
 
     thirsty.register_amulet_supplier("thirsty:injector", 0.5)
 
 **Amulet of Hydration** - Feeds water from a Canteen or other water holding
-item directly into the player to keep them always hydrated. Must be held in Inventory.
-	
+item directly into the player to keep them always hydrated. Must be held in Inventory.  
+  
 The above two Amulets can be used in combination with each other plus a 
 canteen. However this does permenantly fill 3 inventory slots the delibrate
-downside to offset the significant bonus.
+downside to offset the significant bonus.  
 						  
 **Lesser Amulet of Thirst - Coming Soon**
 
