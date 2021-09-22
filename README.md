@@ -4,28 +4,28 @@ A Minetest mod that adds a "thirst" mechanic.
 
 Version: 0.10.2
 
-License:
-  Code:
-	   LGPL 2.1 (see included LICENSE file)
+## *License*
+**Code**  
+LGPL 2.1 (see included LICENSE file)
   
-  Textures: 
-vessels_glass_bottle_full_cc_by_sa_3.png
-Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
-modified from vessels_glass_bottle.png
-Copyright (C) 2012-2016 Vanessa Ezekowitz
-Copyright (C) 2016 Thomas-S
+**Textures** 
+vessels_glass_bottle_full_cc_by_sa_3.png  
+Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)  
+modified from vessels_glass_bottle.png  
+Copyright (C) 2012-2016 Vanessa Ezekowitz  
+Copyright (C) 2016 Thomas-S  
 
-thirsty_drop_100_24_cc0.png +.xcf
-thirsty_drop_100_16_cc0.png
-thirsty_wooden_bowl_cc0.png +.xcf
-thirsty_bronze_canteen_cc0.png +.xcf
-thirsty_steel_canteen_cc0.png
-thirsty_amulet_moisture_cc0.png +.xcf
-thirsty_amulet_hydration_cc0.png +.xcf
-Public Domain CC0 1.0 Universal
-Sirrobzeroone
+thirsty_drop_100_24_cc0.png +.xcf  
+thirsty_drop_100_16_cc0.png  
+thirsty_wooden_bowl_cc0.png +.xcf  
+thirsty_bronze_canteen_cc0.png +.xcf  
+thirsty_steel_canteen_cc0.png  
+thirsty_amulet_moisture_cc0.png +.xcf  
+thirsty_amulet_hydration_cc0.png +.xcf  
+Public Domain CC0 1.0 Universal  
+Sirrobzeroone  
 
-All other Images CC BY-SA 4.0 (see http://creativecommons.org/licenses/by-sa/4.0/)
+All other Images CC BY-SA 4.0 (see http://creativecommons.org/licenses/by-sa/4.0/)  
 
 Report bugs or request help on the forum topic.
 
