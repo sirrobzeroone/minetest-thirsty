@@ -10,7 +10,7 @@
 --       because I'm lazy and like small code blocks      --
 ------------------------------------------------------------
 
-thirsty.register_hb_hng_drink = function (item_name,satiate_value,heal_value,hyd_value,hyd_max,rtn_item_name)
+thirsty.register_food_drink = function (item_name,satiate_value,heal_value,hyd_value,hyd_max,rtn_item_name)
 	
 	local is_hunger_ng = false
 	local is_hbhunger = false
@@ -36,7 +36,8 @@ thirsty.register_hb_hng_drink = function (item_name,satiate_value,heal_value,hyd
 						thirsty.drink(player,hyd_value,hyd_max,rtn_item_name)
 							
 							if minetest.registered_items[item_name]._hunger_ng then
-							    hunger_ng.alter_hunger(player:get_player_name(), satiate_value, "from:thirsty-"..item_name)
+								minetest.sound_play("hunger_ng_eat", {to_player = player:get_player_name(), gain = 2.0 })
+								hunger_ng.alter_hunger(player:get_player_name(), satiate_value, "from:thirsty-"..item_name)
 								player:set_hp(player:get_hp()+heal_value)								
 								itemstack:take_item()
 								return itemstack

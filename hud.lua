@@ -57,7 +57,7 @@ else
         local name = player:get_player_name()
 		local pmeta = player:get_meta()
 		
-        thirsty.players[name].hud_id = player:hud_add({
+        thirsty_hud = player:hud_add({
             hud_elem_type = "statbar",
             position = { x=0.5, y=1 },
             text = "thirsty_drop_100_24_cc0.png",
@@ -69,7 +69,7 @@ else
     end
     function thirsty.hud_update(player, value)
         local name = player:get_player_name()
-        local hud_id = thirsty.players[name].hud_id
+        local hud_id = thirsty_hud
         player:hud_change(hud_id, 'number', thirsty.hud_clamp(value))
     end
 end

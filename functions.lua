@@ -10,21 +10,13 @@
 --                See init.lua for license                --
 ------------------------------------------------------------
 
---[[ notes/ideas
-	move settings from conf to node/item defs were appropriate tool
-	Tier 0 nodes what to do? check for node liquid and drinkable?
-	Tier 1 function to register "Drinking containers" Tier 1
-	Tier 2 function to register "Hydro storing"
-]]--
-
 --------------------------
 -- Tier 0 API Functions --
 --------------------------
 -- regen_from_node is a table defining, for each node type, the
 -- amount of hydro per second a player drinks by standing in it.
 -- Default is 0.5 of a hydration per second
-function thirsty.register_hydrate_node(node_name,drink_cup,regen)
-	
+function thirsty.register_hydrate_node(node_name,drink_cup,regen)	
 	local drink_cup = drink_cup or true
 	local regen = regen or 0.5
 	
@@ -90,17 +82,15 @@ end
 --------------------------
 -- Tier 2 API Functions --
 --------------------------
-function thirsty.drink(player, value, max, empty_vessel)
-    -- if max is not specified, assume 20
-    if not max then
-        max = 20
-    end
+function thirsty.drink(player, value, max_hyd, empty_vessel)
+	local max_hyd = max_hyd or 20
+	local value = value or 2
 	local pmeta = player:get_meta()
     local hydro = pmeta:get_float("thirsty_hydro")
-    -- test whether we're not *above* max;
+    -- test whether we're not *above* max_hyd;
     -- this function should not remove any overhydration
-    if hydro < max then
-        hydro = math.min(hydro + value, max)
+    if hydro < max_hyd then
+        hydro = math.min(hydro + value, max_hyd)
         --print("Drinking by "..value.." to "..hydro)
 		pmeta:set_float("thirsty_hydro", hydro)		
 		minetest.sound_play("thirsty_breviceps_drink-drinking-liquid", { to_player = player:get_player_name(), gain = 2.0, })
@@ -221,16 +211,23 @@ function thirsty.register_amulet_supplier(item_name,value)
 	thirsty.config.injection_for_item[item_name] = value
 end
 
+function thirsty.register_amulet_thirst(item_name,value)
+	thirsty.config.thirst_adjust_item[item_name] = value
+end
+
 function thirsty.get_thirst_factor(player)
     local name = player:get_player_name()
-    local pl = thirsty.players[name]
+	local pmeta = player:get_meta()
+	local pl = minetest.deserialize(pmeta:get_string("thirsty_values"))
     return pl.thirst_factor
 end
 
 function thirsty.set_thirst_factor(player, factor)
     local name = player:get_player_name()
-    local pl = thirsty.players[name]
+	local pmeta = player:get_meta()
+	local pl = minetest.deserialize(pmeta:get_string("thirsty_values"))
     pl.thirst_factor = factor
+	pmeta:set_string("thirsty_values",minetest.serialize(pl))
 end
 
 
@@ -259,28 +256,33 @@ function thirsty.on_joinplayer(player)
 		pmeta:set_float("thirsty_hydro", thirsty.config.start)	
 	end
 	
-	-- default entry for joining players 
-	if not thirsty.players[name] then
-        local pos = player:get_pos()
-        thirsty.players[name] = {
-            last_pos = math.floor(pos.x) .. ':' .. math.floor(pos.z),
-            time_in_pos = 0.0,
+	-- default entry for joining players
+	if pmeta:get_string("thirsty_values") == "" then
+	    local pos = player:get_pos()
+	    pmeta:set_string("thirsty_values", minetest.serialize({
+			last_pos = math.floor(pos.x) .. ':' .. math.floor(pos.z),
+	        time_in_pos = 0.0,
             pending_dmg = 0.0,
-            thirst_factor = 1.0,
-        }
-    end
+            thirst_factor = 1.0
+	   }))
+	end
+
     thirsty.hud_init(player)
 end
 
 
 function thirsty.on_dieplayer(player)
     local name = player:get_player_name()
-    local pl   = thirsty.players[name]
-    -- reset after death
+	local pos = player:get_pos()
 	local pmeta = player:get_meta()
+	
     pmeta:set_float("thirsty_hydro", thirsty.config.start)
-    pl.pending_dmg = 0.0
-    pl.thirst_factor = 1.0
+	pmeta:set_string("thirsty_values", minetest.serialize({
+			last_pos = math.floor(pos.x) .. ':' .. math.floor(pos.z),
+	        time_in_pos = 0.0,
+            pending_dmg = 0.0,
+            thirst_factor = 1.0
+	   }))
 end
 
 
@@ -291,17 +293,17 @@ function thirsty.main_loop(dtime)
         -- time for thirst
         thirsty.time_next_tick = thirsty.time_next_tick + thirsty.config.tick_time
         for _,player in ipairs(minetest.get_connected_players()) do
-
-            if player:get_hp() <= 0 then
-                -- dead players don't get thirsty, or full for that matter :-P
+			
+			-- dead players don't get thirsty, or full for that matter :-P
+            if player:get_hp() <= 0 then   
                 break
             end
 
             local name = player:get_player_name()
             local pos  = player:get_pos()
-            local pl = thirsty.players[name]
 			local pmeta = player:get_meta()
             local hydro = pmeta:get_float("thirsty_hydro")
+			local pl = minetest.deserialize(pmeta:get_string("thirsty_values"))
 
             -- how long have we been standing "here"?
             -- (the node coordinates in X and Z should be enough)
@@ -343,19 +345,24 @@ function thirsty.main_loop(dtime)
             local pl_inv = player:get_inventory()
             local extractor_max = 0.0
             local injector_max = 0.0
+			local amulet_thirst = false
             local container_not_full = nil
             local container_not_empty = nil
             local inv_main = player:get_inventory():get_list('main')
+
             for i, itemstack in ipairs(inv_main) do
                 local name = itemstack:get_name()
-                local injector_this = thirsty.config.injection_for_item[name]
+                -- Amulets Hydration/Moisture
+				local injector_this = thirsty.config.injection_for_item[name]
                 if injector_this and injector_this > injector_max then
                     injector_max = injector_this
                 end
+				
                 local extractor_this = thirsty.config.extraction_for_item[name]
                 if extractor_this and extractor_this > extractor_max then
                     extractor_max = extractor_this
                 end
+				
                 if thirsty.config.container_capacity[name] then
                     local wear = itemstack:get_wear()
                     -- can be both!
@@ -366,7 +373,17 @@ function thirsty.main_loop(dtime)
                         container_not_empty = { i, itemstack }
                     end
                 end
+				-- Amulets of Thirst
+				local is_thirst_amulet = thirsty.config.thirst_adjust_item[name]
+				if is_thirst_amulet then
+					amulet_thirst = true
+					pl.thirst_factor = thirsty.config.thirst_adjust_item[name]				
+				end
             end
+
+			if amulet_thirst ~= true and pl.thirst_factor ~= 1.0 then
+				pl.thirst_factor = 1.0
+			end
 			
             if extractor_max > 0.0 and container_not_full then
                 local i = container_not_full[1]
@@ -403,7 +420,8 @@ function thirsty.main_loop(dtime)
 
             if drink_per_second > 0 and pl_standing then
                 -- Drinking from the ground won't give you more than max
-                thirsty.drink(player, drink_per_second * thirsty.config.tick_time, 20)
+                thirsty.drink(player, (drink_per_second * thirsty.config.tick_time)*2, 20)
+				pl.time_in_pos = 0.0
                 --print("Raising hydration by "..(drink_per_second*thirsty.config.tick_time).." to "..PPA.get_value(player, 'thirsty_hydro'))
             else
                 if not pl_afk then
@@ -438,6 +456,7 @@ function thirsty.main_loop(dtime)
                     pl.pending_dmg = 0.0
                 end
             end
+			pmeta:set_string("thirsty_values",minetest.serialize(pl))
         end -- for players
 
         -- check fountains for expiration
@@ -455,9 +474,9 @@ end
 
 
 function thirsty.drink_handler(player, itemstack, node)
-    local pl = thirsty.players[player:get_player_name()]
 	local pmeta = player:get_meta()
     local hydro = pmeta:get_float("thirsty_hydro")
+	local pl = minetest.deserialize(pmeta:get_string("thirsty_values"))
     local old_hydro = hydro
 
     -- selectors, always true, to make the following code easier

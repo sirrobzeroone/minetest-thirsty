@@ -270,12 +270,12 @@ if thirsty.config.register_amulets and
    minetest.registered_items[E.mese_crystal] and   
    minetest.registered_items[E.bucket_water] then
 
-    minetest.register_craftitem('thirsty:injector', {
-        description = 'Amulet of Hydration',
+    minetest.register_craftitem("thirsty:amulet_of_hydration", {
+        description = "Amulet of Hydration",
         inventory_image = "thirsty_amulet_hydration_cc0.png",
     })
     minetest.register_craft({
-        output = "thirsty:injector",
+        output = "thirsty:amulet_of_hydration",
         recipe = {
             {E.diamond     ,E.mese_crystal,E.diamond},
             {E.mese_crystal,E.bucket_water,E.mese_crystal},
@@ -283,14 +283,14 @@ if thirsty.config.register_amulets and
         }
     })
 
-	thirsty.register_amulet_supplier("thirsty:injector", 0.5)
+	thirsty.register_amulet_supplier("thirsty:amulet_of_hydration", 0.5)
 
-    minetest.register_craftitem('thirsty:extractor', {
+    minetest.register_craftitem("thirsty:amulet_of_moisture", {
         description = "Amulet of Moisture",
         inventory_image = "thirsty_amulet_moisture_cc0.png",
     })
     minetest.register_craft({
-        output = "thirsty:extractor",
+        output = "thirsty:amulet_of_moisture",
         recipe = {
             {E.mese_crystal,E.diamond     ,E.mese_crystal},
             {E.diamond     ,E.bucket_water,E.diamond     },
@@ -298,6 +298,25 @@ if thirsty.config.register_amulets and
         }
     })
 
-	thirsty.register_amulet_extractor("thirsty:extractor", 0.6)
+	thirsty.register_amulet_extractor("thirsty:amulet_of_moisture", 0.6)
 
+	minetest.register_craftitem("thirsty:lesser_amulet_thirst", {
+        description = "Lesser Amulet of Thirst",
+        inventory_image = "thirsty_amulet_of_thirst_lesser_cc0.png",
+    })
+	
+	minetest.register_craftitem("thirsty:amulet_thirst", {
+        description = "Amulet of Thirst",
+        inventory_image = "thirsty_amulet_of_thirst_cc0.png",
+    })
+	
+	minetest.register_craftitem("thirsty:greater_amulet_thirst", {
+        description = "Greater Amulet of Thirst",
+        inventory_image = "thirsty_amulet_of_thirst_greater_cc0.png",
+    })
+
+	thirsty.register_amulet_thirst("thirsty:lesser_amulet_thirst",0.85)
+	thirsty.register_amulet_thirst("thirsty:amulet_thirst",0.70)
+	thirsty.register_amulet_thirst("thirsty:greater_amulet_thirst",0.55)
+	
 end

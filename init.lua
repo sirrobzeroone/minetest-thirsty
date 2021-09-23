@@ -86,20 +86,10 @@ thirsty = {
 			  drink_from_node      = {},
 			  fountain_type        = {},
 			  extraction_for_item  = {},
-			  injection_for_item   = {}
+			  injection_for_item   = {},
+			  thirst_adjust_item   = {}
              },
 
-    -- the players' values
-    players = {
-        --[[
-        name = {
-            last_pos = '-10:3',
-            time_in_pos = 0.0,
-            pending_dmg = 0.0,
-            thirst_factor = 1.0,
-        }
-        ]]
-    },
 
     -- water fountains
     fountains = {
@@ -144,6 +134,10 @@ dofile(modpath..'/components_external_nodes_items.lua')
 dofile(modpath..'/components.lua')
 dofile(modpath..'/interop_a_functions.lua')
 
+-- dungeon_loot for Aumlets of Thirst
+if minetest.get_modpath("dungeon_loot") then
+	dofile(modpath..'/interop_dungeon_loot.lua')
+end 
 
 -- mobs_animal specific config
 if minetest.get_modpath("mobs_animal") then
@@ -160,3 +154,4 @@ end
 if minetest.get_modpath("ethereal") then
 	dofile(modpath..'/interop_ethereal.lua')
 end
+--minetest.debug(dump(thirsty))

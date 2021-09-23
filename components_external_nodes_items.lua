@@ -18,8 +18,8 @@ across the whole mod.
 local E = thirsty.ext_nodes_items
 
 -- item and node mod aliases, change these as needed.
--- if item dosen't exist as either Ing or Aug item
--- it wont register.
+-- if item dosen't exist as either Ingredient or Augumented 
+-- item it wont register.
 
 -- Basic Water, change here or register 
 -- using thirsty.register_hydrate_node() 

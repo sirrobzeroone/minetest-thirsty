@@ -8,7 +8,7 @@ Version: 0.10.2
 **Code**  
 LGPL 2.1 (see included LICENSE file)
   
-**Textures** 
+**Textures**   
 vessels_glass_bottle_full_cc_by_sa_3.png  
 Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)  
 modified from vessels_glass_bottle.png  
@@ -21,11 +21,17 @@ thirsty_wooden_bowl_cc0.png +.xcf
 thirsty_bronze_canteen_cc0.png +.xcf  
 thirsty_steel_canteen_cc0.png  
 thirsty_amulet_moisture_cc0.png +.xcf  
-thirsty_amulet_hydration_cc0.png +.xcf  
+thirsty_amulet_hydration_cc0.png +.xcf 
 Public Domain CC0 1.0 Universal  
 Sirrobzeroone  
 
-All other Images CC BY-SA 4.0 (see http://creativecommons.org/licenses/by-sa/4.0/)  
+All other Images CC BY-SA 4.0 
+(see http://creativecommons.org/licenses/by-sa/4.0/)
+  
+**Sounds**  
+thirsty_breviceps_drink-drinking-liquid.ogg  
+https://freesound.org/people/Breviceps/sounds/445970/  
+Public Domain CC0 1.0 Universal
 
 Report bugs or request help on the forum topic.
 
@@ -83,7 +89,7 @@ Configure nodes that can be drunk from using a cup/glass etc assuming this was
 not done as part of Tier 0 or if you wish to override max_hydration to be more
 than the default value (normally 20):
 
-** thirsty.register_drinkable_node(node_name,max_hydration)**  
+**thirsty.register_drinkable_node(node_name,max_hydration)**  
 **"item_name"** registered node name  
 **"max_hydration"**  optional will default to thirsty.config.start (default 20)
  max hydration can be set above 20 to encourage use of drinking fountains or
@@ -282,7 +288,7 @@ once and for all.
 
 **Example**
 
-    thirsty.register_amulet_extractor("thirsty:extractor", 0.6)	
+    thirsty.register_amulet_extractor("thirsty:amulet_of_moisture", 0.6)	
 
 **Amulet of Moisture**  - Absorbs moisture from the surronding environment places it into a canteen or other water holding item. Must be held in Inventory.  
 
@@ -294,7 +300,7 @@ once and for all.
 			  
 **Example**  
 
-    thirsty.register_amulet_supplier("thirsty:injector", 0.5)
+    thirsty.register_amulet_supplier("thirsty:amulet_of_hydration", 0.5)
 
 **Amulet of Hydration** - Feeds water from a Canteen or other water holding
 item directly into the player to keep them always hydrated. Must be held in Inventory.  
@@ -303,20 +309,31 @@ The above two Amulets can be used in combination with each other plus a
 canteen. However this does permenantly fill 3 inventory slots the delibrate
 downside to offset the significant bonus.  
 						  
-**Lesser Amulet of Thirst - Coming Soon**
+**Amulets of Thirst** - Three versions lesser,normal and greater each will slower the rate at which
+a player becomes thirsty. Normal thirst factor is 1, however a "cursed" version could be created
+which makes a player become thirsty faster.  
 
-* thirsty.set_thirst_factor(player, factor) : how fast does the given player get thirsty (default is 1.0)
-* thirsty.get_thirst_factor(player) : returns the current thirst factor of a player
+	thirsty.register_amulet_thirst(item_name, thirst_factor)  
 
-**Amulet of Thirst - Coming Soon**
+**"item_name"** Registered item name  
+**"thirst_factor"** Float value that represents the speed at which a player uses hydration points
 
-**Greater Amulet of Thirst - Coming Soon**
+**Example** 
 
+	minetest.register_craftitem("thirsty:greater_amulet_thirst", {
+        description = "Greater Amulet of Thirst",
+        inventory_image = "thirsty_amulet_of_thirst_greater_cc0.png",
+    })
+
+	thirsty.register_amulet_thirst("thirsty:lesser_amulet_thirst",0.85)
+
+*Note: Included Amulets of Thirst have no craft recipes and are only avaliable as   
+*dungeon loot with more powerful versions only found in deeper dungeons.
+ 
 
 ## *Additional Functions*
 
-**thirsty.get_hydro(player) : returns the current hydration of a player**
-
+*thirsty.get_hydro(player) : returns the current hydration of a player*
 
 "player" refers to a player object, i.e. with a get_player_name() method.
 
