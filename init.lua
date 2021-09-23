@@ -43,13 +43,23 @@ CC0 1.0 Universal
 everamzah on the Minetest forums, thanks!). The overall mechanic
 is still called "thirst", but the visible bar is that of
 "hydration", filled with "hydro points".
-
 ]]--
 
--- the main module variable
-thirsty = {
+thirsty = {}
+
+-- simple toboolean function that handles nil
+thirsty.tobool = function(s_string)
+	if s_string == nil then
+		return nil
+	elseif s_string == "true" or s_string == 1 then
+		return true
+	else
+		return false
+	end
+end
+
     -- Configuration variables
-    config = {
+thirsty.config = {
 			  -- configuration in Settings>>Mods>>Thirsty
 			  -- Best to not change defaults here
 			  -- [General]
@@ -67,15 +77,14 @@ thirsty = {
 			  fountain_distance_per_level = minetest.setting_get("fountain_distance_per_level") or 5,
 			  
 			  -- [Thirsty Mod Items]
-			  register_bowl = minetest.setting_get("register_bowl") or true,
-			  register_canteens = minetest.setting_get("register_canteens") or true,
-			  register_drinking_fountain = minetest.setting_get("register_drinking") or true,
-			  register_fountains = minetest.setting_get("register_fountains") or true,
-			  register_amulets = minetest.setting_get("register_amulets") or true,
+			  register_bowl      = thirsty.tobool(minetest.setting_get("register_bowl")) or true,
+			  register_canteens  = thirsty.tobool(minetest.setting_get("register_canteens")) or true,
+			  register_drinking_fountain = thirsty.tobool(minetest.setting_get("register_drinking")) or true,
+			  register_fountains = thirsty.tobool(minetest.setting_get("register_fountains")) or true,
+			  register_amulets   = thirsty.tobool(minetest.setting_get("register_amulets")) or true,
 			  
 			  -- [Other Mods]
-			  register_vessels = minetest.setting_get("register_vessels") or true,
-			  register_glass_milk = minetest.setting_get("register_glass_milk") or true,
+			  register_vessels = thirsty.tobool(minetest.setting_get("register_vessels")) or true,
 			  
 			  -- [Node/Item Tables] Do not change names without code updates. 
 			  -- Use API functions to register to these tables
@@ -88,11 +97,10 @@ thirsty = {
 			  extraction_for_item  = {},
 			  injection_for_item   = {},
 			  thirst_adjust_item   = {}
-             },
-
+             }
 
     -- water fountains
-    fountains = {
+thirsty.fountains = {
         --[[
         x:y:z = {
             pos = { x=x, y=y, z=z },
@@ -101,8 +109,9 @@ thirsty = {
             -- something about times
         }
         ]]
-    },
-	ext_nodes_items = {
+    }
+	
+thirsty.ext_nodes_items = {
 		  --[[ acts as an internal
 		       mod aliasing for ingredients
 			   used in Canteen/Fountain recipes.
@@ -111,11 +120,11 @@ thirsty = {
 			   
 			   steel_ingot = default:steel_ingot
             ]]			   
-	},
+	}
 
     -- general settings
-    time_next_tick = 0.0,
-}
+thirsty.time_next_tick = 0.0
+
 
 local M = thirsty
 local C = M.config
@@ -154,4 +163,3 @@ end
 if minetest.get_modpath("ethereal") then
 	dofile(modpath..'/interop_ethereal.lua')
 end
---minetest.debug(dump(thirsty))
