@@ -48,10 +48,10 @@ is still called "thirst", but the visible bar is that of
 thirsty = {}
 
 -- simple toboolean function that handles nil
-thirsty.tobool = function(s_string)
-	if s_string == nil then
+thirsty.tobool = function(value)
+	if value == nil then
 		return nil
-	elseif s_string == "true" or s_string == 1 then
+	elseif value == "true" or value == 1 then
 		return true
 	else
 		return false

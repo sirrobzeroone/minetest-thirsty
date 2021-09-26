@@ -69,6 +69,7 @@ end
 		
 	end
 
+
 --[[
 
 Tier 2 Hydro Containers
@@ -128,6 +129,7 @@ if thirsty.config.register_canteens and
     })
 
 end
+
 
 -------------------------------
 --  Tier 3 Drinking Fountain --
@@ -256,8 +258,8 @@ if thirsty.config.register_fountains and
 
 end
 
---[[
 
+--[[
 Tier 5
 
 These amulets don't do much; the actual code is above, where
