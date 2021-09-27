@@ -10,6 +10,7 @@
 -- A mod that adds a "thirst" mechanic, similar to hunger --
 --  Copyright (C) 2015 Ben Deutsch <ben@bendeutsch.de>    --
 ------------------------------------------------------------
+-- name idea thirsty_revive or thirsty_renew
 ---------------
 --[[ License --
 ---------------
@@ -46,6 +47,8 @@ is still called "thirst", but the visible bar is that of
 ]]--
 
 thirsty = {}
+
+thirsty.version = 0.103
 
 -- simple toboolean function that handles nil
 thirsty.tobool = function(value)
