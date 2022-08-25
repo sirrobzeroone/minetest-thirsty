@@ -57,7 +57,7 @@ else
         local name = player:get_player_name()
 		local pmeta = player:get_meta()
 		
-        thirsty_hud = player:hud_add({
+		thirsty_hud = player:hud_add({
             hud_elem_type = "statbar",
             position = { x=0.5, y=1 },
             text = "thirsty_drop_100_24_cc0.png",

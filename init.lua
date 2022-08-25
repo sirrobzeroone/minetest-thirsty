@@ -66,28 +66,28 @@ thirsty.config = {
 			  -- configuration in Settings>>Mods>>Thirsty
 			  -- Best to not change defaults here
 			  -- [General]
-			  tick_time = minetest.setting_get("thirsty_tick_time") or 0.5, 
-			  start = minetest.setting_get("thirsty_starting_value") or 20,
-			  thirst_per_second = minetest.setting_get("thirst_per_second") or 1.0 / 30,
-			  damage_per_second = minetest.setting_get("damage_per_second") or 1.0 / 10.0,
-			  stand_still_for_drink = minetest.setting_get("stand_still_for_drink") or 1.0,
-			  stand_still_for_afk = minetest.setting_get("stand_still_for_afk") or 120.0,
+			  tick_time = minetest.settings:get("thirsty_tick_time") or 0.5, 
+			  start = minetest.settings:get("thirsty_starting_value") or 20,
+			  thirst_per_second = minetest.settings:get("thirst_per_second") or 1.0 / 30,
+			  damage_per_second = minetest.settings:get("damage_per_second") or 1.0 / 10.0,
+			  stand_still_for_drink = minetest.settings:get("stand_still_for_drink") or 1.0,
+			  stand_still_for_afk = minetest.settings:get("stand_still_for_afk") or 120.0,
 			  
 			  -- [Water Fountain]
-			  regen_from_fountain = minetest.setting_get("regen_from_fountain") or 0.5,
-			  fountain_height = minetest.setting_get("fountain_height") or 4,
-			  fountain_max_level = minetest.setting_get("fountain_max_level") or 20,
-			  fountain_distance_per_level = minetest.setting_get("fountain_distance_per_level") or 5,
+			  regen_from_fountain = minetest.settings:get("regen_from_fountain") or 0.5,
+			  fountain_height = minetest.settings:get("fountain_height") or 4,
+			  fountain_max_level = minetest.settings:get("fountain_max_level") or 20,
+			  fountain_distance_per_level = minetest.settings:get("fountain_distance_per_level") or 5,
 			  
 			  -- [Thirsty Mod Items]
-			  register_bowl      = thirsty.tobool(minetest.setting_get("register_bowl")) or true,
-			  register_canteens  = thirsty.tobool(minetest.setting_get("register_canteens")) or true,
-			  register_drinking_fountain = thirsty.tobool(minetest.setting_get("register_drinking")) or true,
-			  register_fountains = thirsty.tobool(minetest.setting_get("register_fountains")) or true,
-			  register_amulets   = thirsty.tobool(minetest.setting_get("register_amulets")) or true,
+			  register_bowl      = thirsty.tobool(minetest.settings:get("register_bowl")) or true,
+			  register_canteens  = thirsty.tobool(minetest.settings:get("register_canteens")) or true,
+			  register_drinking_fountain = thirsty.tobool(minetest.settings:get("register_drinking")) or true,
+			  register_fountains = thirsty.tobool(minetest.settings:get("register_fountains")) or true,
+			  register_amulets   = thirsty.tobool(minetest.settings:get("register_amulets")) or true,
 			  
 			  -- [Other Mods]
-			  register_vessels = thirsty.tobool(minetest.setting_get("register_vessels")) or true,
+			  register_vessels = thirsty.tobool(minetest.settings:get("register_vessels")) or true,
 			  
 			  -- [Node/Item Tables] Do not change names without code updates. 
 			  -- Use API functions to register to these tables

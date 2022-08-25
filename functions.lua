@@ -162,8 +162,9 @@ function thirsty.on_use_empty()
         if pointed_thing and pointed_thing.type == 'node' then
             node = minetest.get_node(pointed_thing.under)
         end
+		
 
-		if thirsty.config.node_drinkable[node.name] then 
+		if node and thirsty.config.node_drinkable[node.name] then 
 			local new_stack = {name = itemstack:get_name().."_full", count=1, wear=1, metadata=""}		
 			player:get_inventory():add_item("main", new_stack)
 			itemstack:take_item()

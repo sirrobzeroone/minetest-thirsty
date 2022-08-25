@@ -15,6 +15,6 @@ local E = thirsty.ext_nodes_items
 -- Hydrate and Food Items --
 ----------------------------
 thirsty.register_food_drink("ethereal:firethorn_jelly" ,1,0,1,20,E.glass_bottle)
-thirsty.register_food_drink("ethereal:mushroom_soup"   ,2.5,0,2,20,ethereal:bowl)
-thirsty.register_food_drink("ethereal:hearty_stew"     ,7.0,0,1,20,ethereal:bowl)
+thirsty.register_food_drink("ethereal:mushroom_soup"   ,2.5,0,2,20,"ethereal:bowl")
+thirsty.register_food_drink("ethereal:hearty_stew"     ,7.0,0,1,20,"ethereal:bowl")
 thirsty.register_food_drink("ethereal:golden_apple"    ,10,10,10,30,nil)
